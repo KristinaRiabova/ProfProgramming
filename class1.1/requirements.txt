@@ -1,0 +1,18 @@
+For User Story (a):
+
+The program shall accept a list of numbers as input.
+The program should be able to identify and return the largest negative value from the provided list.
+If no negative values are present in the list, the program should return a suitable message indicating so.
+The program should handle integer in the input list.
+The solution should be efficient and scalable for large lists of numbers.
+
+For User Story (b):
+
+The program shall accept three coefficients (a, b, and c) representing a quadratic equation of the form ax^2 + bx + c.
+The program should calculate the roots of the quadratic equation.
+If the equation has real roots, the program should return them as output.
+If the equation has complex roots, the program should return them as well.
+The program should handle cases where the quadratic equation has one or two real roots, or two complex roots.
+The program should provide accurate results even for equations with large coefficients.
+The solution should handle cases where the discriminant is zero, indicating that the equation has only one real root.
+
