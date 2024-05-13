@@ -5,30 +5,68 @@ public class LargestNegativeValueFinder {
         // Create a Scanner object to read user input
         Scanner scanner = new Scanner(System.in);
 
-       
+        // Prompt the user to enter a list of numbers separated by spaces
         System.out.println("Enter a list of numbers separated by spaces:");
-        String input = System.input();
 
+
+        String input = getUserInput(scanner);
+
+        // Find and display the largest negative value
+        findAndDisplayLargestNegative(input);
+
+
+        scanner.close();
+    }
+
+    // Method to get user input
+    public static String getUserInput(Scanner scanner) {
+        // Read the input line
+        String input = scanner.nextLine();
+
+        // Check if the input is empty
+        if (input.isEmpty()) {
+            System.out.println("Input is empty");
+            System.exit(0);
+        }
+
+        return input;
+    }
+
+    // Method to find and display the largest negative value
+    public static void findAndDisplayLargestNegative(String input) {
         // Split the input into an array of strings
         String[] numbersAsString = input.split(" ");
 
-        // Initialize variables to track the largest negative value and whether any negative value was found
-        int largestNegative = numbersAsString[0];
-        
+        // Initialize variables
+        int[] negativeNumsArray = new int[numbersAsString.length];
+        int j = 0;
 
-        for (int 0; i<numbersAsString; i++){
-            if (i > largestNegative) {
-                largestNegative = i;
+        // Populate the array with negative numbers
+        for (int i = 0; i < numbersAsString.length; i++) {
+            try {
+                if (Integer.parseInt(numbersAsString[i]) < 0) {
+                    negativeNumsArray[j] = Integer.parseInt(numbersAsString[i]);
+                    j++;
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("Not a number, will be skipped: " + numbersAsString[i]);
             }
         }
 
-        // Print the result message
-        if (foundNegative) {
-            System.out.println("The largest negative value is: " + largestNegative);
+        // Find the largest negative value
+        int largestNegative = 0;
+        if (negativeNumsArray[0] == 0) {
+            System.out.println("No negative values found in the list. Program closed");
         } else {
-            System.out.println("No negative values found in the list.");
-        }
+            largestNegative = negativeNumsArray[0];
+            for (int i = 0; i < negativeNumsArray.length; i++) {
+                if (largestNegative < negativeNumsArray[i]) {
+                    if (negativeNumsArray[i] == 0) break;
+                    largestNegative = negativeNumsArray[i];
+                }
+            }
 
-        scanner.close();
+                System.out.println("The largest negative value is: " + largestNegative);
+        }
     }
 }
