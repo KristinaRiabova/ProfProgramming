@@ -1,0 +1,73 @@
+TASK 1. Open and review NegativeMax.cpp file.
+
+It contains one of the possible implementations related to the task from the previous lesson.
+Find corresponding code for the following items:
+* We are using readable names(inputString, delimeter) which allows us to increase code readability.
+* We can use some short version of names like str in lambdas or other helper things
+as context is straightforward and they are just a part of helpers.
+* We split logical blocks in code with empty lines - it allows us to structure the steps visually.
+In case of some bigger code we may want to split and encapsulate it into the class or set of functions
+but in the current case it is not critical. Actually it's up to you and your willing to extend the code in future.
+* We are using built-in mechanism to process checks, filtering and transformations(ranges, views, etc).
+Always check for existing language features first before starting the coding of your custom algorithm implementation.
+Very rarely we may need to write our own implementations for special cases to optimize soemthing
+but in general we should rely on language built-in features or libraries first.
+* In this case we don't even need additional comments in the code
+as they will only duplicate what is already present and can be read from it.
+Therefore in some cases extra comments can decrease code readability.
+At the same time if you have some complex logic or some special case that is not clear
+then you should use a proper comment to mark the code.
+* We can write lambda with try catch as a one-liner cause the main info is in try block.
+In other words our intention is to do something like filter([](const auto& str) {return std::stod(str) < 0;})
+e.g. parse string as double and use only negative values.
+Of course, in some cases you may have codestyle restrictions that will not allow you to write the code that way.
+
+TASK 2. During code development it is recommended to run compiler with many useful flags
+as this allows you to get warnings and suspicious situations that potentialy can cause some bugs.
+Let's use the following list of flags:
+
+-Wall -Wextra -Wpedantic -Werror -std=c++23
+
+Read about each of them and write bash(powershell) script compile.sh(compile.ps1)
+that will allow you to build some sources. Therefore
+./compile.sh main.cpp -o someBinary
+should do
+clang++ -Wall -Wextra -Wpedantic -Werror -std=c++23 main.cpp -o someBinary
+
+TASK 3. Advanced Hello world C++ program. Read the following user stories and requirements:
+
+User story 1:
+As a user I want to have a program that takes a name as an input and can display me a custom hello message
+based on which I can understand what execution attempt with such a name is at the moment.
+
+User story 2:
+As a user I want to have a custom welcome message
+when the program is running with a given name for the first time. It should make me happy.
+
+User story 3:
+As a user I want to have an ability to reset statistics for a given user
+and also if I pass a secret word "bread" as a name the complete history should be exterminated.
+It will make me confident that no one will be able to steal my personal data and sell this data in darknet.
+
+Requirement 1:
+User shall be able to run a program with a name as an argument
+and receive "Welcome, <name>!" message if this is the first program run with that name.
+
+Requirement 2:
+User shall be able to get "Hello again(x<N>), <name>" if it is not the first time of program run with the name.
+
+Requirement 3:
+Program should handle the proper count of input arguments and show error message if needed.
+
+Requirement 4:
+User shall be able to pass "delete" as the second argument to reset statistics for the given name.
+
+Requirement 5:
+Program should clear all the history in case if secret word "bread" was used as a name argument. 
+
+TASK 3a. Write 5 different test case with 5+ steps each to cover different scenarios
+that may be used for the testing of the program written based on the scenarios.
+
+TASK 3b. Write C++ program to implement the behavior requested by user stories based on the requirements provided above.
+
+TASK 3c. Execute your test cases from the task 3a on the program written for the task 3b.
