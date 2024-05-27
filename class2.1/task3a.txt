@@ -1,0 +1,36 @@
+Test Case 1: New User
+
+Input: Program run with name "Alice".
+Expected Output: "Welcome, Alice!"
+
+Test Case 2: Returning User
+
+Input: Program run with name "Alice".
+Expected Output: "Hello again(x1), Alice"
+
+Test Case 3: Multiple Runs with Different Names
+
+Input: Program run with name "Bob".
+Expected Output: "Welcome, Bob!"
+Input: Program run with name "Alice".
+Expected Output: "Welcome, Alice!"
+Input: Program run with name "Bob".
+Expected Output: "Hello again(x1), Bob"
+
+Test Case 4: Reset Statistics
+
+Input: Program run with name "Alice".
+Expected Output: "Welcome, Alice!"
+Input: Program run with name "Alice" and "delete".
+Expected Output: Statistics for "Alice" reset.
+Input: Program run with name "Alice".
+Expected Output: "Welcome, Alice!"
+
+Test Case 5: Clear History with Secret Word
+
+Input: Program run with name "bread".
+Expected Output: All history cleared.
+Input: Program run with name "Alice".
+Expected Output: "Welcome, Alice!"
+
+**Also in this class work I use gpt-chat
