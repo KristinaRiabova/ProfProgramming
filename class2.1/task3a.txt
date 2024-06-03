@@ -1,36 +1,54 @@
 Test Case 1: New User
+Precondition: Ensure history.txt does not exist or is empty.
 
-Input: Program run with name "Alice".
+Step 1: Run the program with the name "Alice".
+
 Expected Output: "Welcome, Alice!"
 
 Test Case 2: Returning User
+Precondition: Ensure history.txt contains "Alice 1".
 
-Input: Program run with name "Alice".
+Step 1: Run the program with the name "Alice".
+
 Expected Output: "Hello again(x1), Alice"
 
 Test Case 3: Multiple Runs with Different Names
+Precondition: Ensure history.txt does not exist or is empty.
 
-Input: Program run with name "Bob".
+Step 1: Run the program with the name "Bob".
+
 Expected Output: "Welcome, Bob!"
-Input: Program run with name "Alice".
+
+Step 2: Run the program with the name "Alice".
+
 Expected Output: "Welcome, Alice!"
-Input: Program run with name "Bob".
+
+Step 3: Run the program with the name "Bob".
+
 Expected Output: "Hello again(x1), Bob"
 
 Test Case 4: Reset Statistics
+Precondition: Ensure history.txt does not exist or is empty.
 
-Input: Program run with name "Alice".
+Step 1: Run the program with the name "Alice".
+
 Expected Output: "Welcome, Alice!"
-Input: Program run with name "Alice" and "delete".
-Expected Output: Statistics for "Alice" reset.
-Input: Program run with name "Alice".
+
+Step 2: Run the program with the name "Alice" and "delete".
+
+Expected Output: "Statistics for Alice reset."
+
+Step 3: Run the program with the name "Alice".
+
 Expected Output: "Welcome, Alice!"
 
 Test Case 5: Clear History with Secret Word
+Precondition: Ensure history.txt contains some data.
 
-Input: Program run with name "bread".
-Expected Output: All history cleared.
-Input: Program run with name "Alice".
+Step 1: Run the program with the name "bread".
+
+Expected Output: "All history cleared."
+
+Step 2: Run the program with the name "Alice".
+
 Expected Output: "Welcome, Alice!"
-
-**Also in this class work I use gpt-chat

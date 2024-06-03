@@ -2,73 +2,86 @@
 #include <fstream>
 #include <map>
 #include <string>
-//I create history.txt file for saving data.
+
 using namespace std;
 
-map<string, int> userHistory;
+namespace {
+    constexpr auto defaultUserHistoryFile = "history.txt";
+    constexpr auto clearHistoryCommand = "bread";
+    constexpr auto resetStatisticsCommand = "delete";
+}
 
-void loadHistory() {
-    ifstream file("history.txt");
-    string name;
-    int count;
-    while (file >> name >> count) {
-        userHistory[name] = count;
+class UserHistory {
+public:
+    explicit UserHistory(const string& filePath) : filePath(filePath) {
+        loadHistory();
     }
-    file.close();
-}
 
-void saveHistory() {
-    ofstream file("history.txt");
-    for (const auto& entry : userHistory) {
-        file << entry.first << " " << entry.second << endl;
+    ~UserHistory() {
+        saveHistory();
     }
-    file.close();
-}
 
-void greetUser(const string& name) {
-    if (userHistory.find(name) == userHistory.end()) {
-        cout << "Welcome, " << name << "!" << endl;
-        userHistory[name] = 1;
-    } else {
-        cout << "Hello again(x" << userHistory[name] << "), " << name << endl;
-        userHistory[name]++;
+    void loadHistory() {
+        ifstream file(filePath);
+        string name;
+        int count;
+        while (file >> name >> count) {
+            history[name] = count;
+        }
     }
-}
 
-void resetStatistics(const string& name) {
-    userHistory.erase(name);
-    cout << "Statistics for " << name << " reset." << endl;
-}
+    void saveHistory() const {
+        ofstream file(filePath);
+        for (const auto& entry : history) {
+            file << entry.first << " " << entry.second << endl;
+        }
+    }
 
-void clearHistory() {
-    userHistory.clear();
-    cout << "All history cleared." << endl;
-}
+    void greetUser(const string& name) {
+        int& count = history[name];
+        if (count == 0) {
+            cout << "Welcome, " << name << "!" << endl;
+        } else {
+            cout << "Hello again(x" << count << "), " << name << endl;
+        }
+        ++count;
+    }
+
+    void resetStatistics(const string& name) {
+        history.erase(name);
+        cout << "Statistics for " << name << " reset." << endl;
+    }
+
+    void clearHistory() {
+        history.clear();
+        cout << "All history cleared." << endl;
+    }
+
+private:
+    map<string, int> history;
+    string filePath;
+};
 
 int main(int argc, char* argv[]) {
-    loadHistory();
-
     if (argc < 2) {
         cout << "Error: Please provide a name as argument." << endl;
         return 1;
     }
 
     string name = argv[1];
+    UserHistory userHistory(defaultUserHistoryFile);
 
-    if (name == "bread") {
-        clearHistory();
-        saveHistory();
+    if (name == clearHistoryCommand) {
+        userHistory.clearHistory();
         return 0;
     }
 
-    if (argc == 3 && string(argv[2]) == "delete") {
-        resetStatistics(name);
-        saveHistory();
+    if (argc == 3 && string(argv[2]) == resetStatisticsCommand) {
+        userHistory.resetStatistics(name);
         return 0;
     }
 
-    greetUser(name);
-    saveHistory();
+    userHistory.greetUser(name);
 
     return 0;
 }
