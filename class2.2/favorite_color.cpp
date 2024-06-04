@@ -60,27 +60,46 @@ public:
         favorite = Pixel(r, g, b);
     }
 
-    void readImage(const string& filename) {
-        ifstream infile(filename);
-        if (!infile) {
-            cerr << "Error opening file: " << filename << endl;
-            exit(1);
-        }
-        string line;
-        for (int i = 0; i < rows; ++i) {
-            getline(infile, line);
+void readImage(const string& filename) {
+    ifstream infile(filename);
+    if (!infile) {
+        cerr << "Error opening file: " << filename << endl;
+        exit(1);
+    }
+    string line;
+    bool isEmpty = true; // Flag to track if the file is empty
+    for (int i = 0; i < rows; ++i) {
+        if (getline(infile, line)) {
+            isEmpty = false;
             istringstream iss(line);
             string pixel;
             for (int j = 0; j < cols; ++j) {
-                getline(iss, pixel, ' ');
-                replace(pixel.begin(), pixel.end(), ',', ' ');  // Correct usage of std::replace
-                istringstream pixelStream(pixel);
-                int r, g, b;
-                pixelStream >> r >> g >> b;
-                image[i][j] = Pixel(r, g, b);
+                if (getline(iss, pixel, ' ')) {
+                    replace(pixel.begin(), pixel.end(), ',', ' ');  
+                    istringstream pixelStream(pixel);
+                    int r, g, b;
+                    if (!(pixelStream >> r >> g >> b)) {
+                        cerr << "Error: Invalid format in line " << i + 1 << " of the input file." << endl;
+                        exit(1);
+                    }
+                    image[i][j] = Pixel(r, g, b);
+                } else {
+                    cerr << "Error: Unexpected end of file." << endl;
+                    exit(1);
+                }
+            }
+            if (iss >> pixel) {
+                cerr << "Error: Extra data in line " << i + 1 << " of the input file." << endl;
+                exit(1);
             }
         }
     }
+    if (isEmpty) {
+        cerr << "Error: File is empty." << endl;
+        exit(1);
+    }
+}
+
 
     void writeImage(const string& filename) const {
         ofstream outfile(filename);
@@ -96,26 +115,44 @@ public:
         }
     }
 
-    void processAndSave(const string& outputFilename) {
-        if (!validateInput()) {
-            cerr << "Invalid input data format." << endl;
-            exit(1);
+   void processAndSave(const string& outputFilename) {
+    bool foundFavoriteColor = false; // Flag to track if favorite color is found in the image
+    for (const auto& row : image) {
+        for (const auto& pixel : row) {
+            if (pixel == favorite) {
+                foundFavoriteColor = true;
+                break;
+            }
         }
-        processImage();
-        writeImage(outputFilename);
+        if (foundFavoriteColor) break; // If found, no need to continue searching
     }
+
+    if (!foundFavoriteColor) {
+        cerr << "Favorite color not found in the image." << endl;
+        exit(1);
+    }
+
+    if (!validateInput()) {
+        cerr << "Invalid input data format." << endl;
+        exit(1);
+    }
+    processImage();
+    writeImage(outputFilename);
+}
+
 };
 
-int main() {
-    string inputFilename, outputFilename;
-    int favR, favG, favB;
-    
-    cout << "Enter input file name: ";
-    cin >> inputFilename;
-    cout << "Enter favorite color (R G B): ";
-    cin >> favR >> favG >> favB;
-    cout << "Enter output file name: ";
-    cin >> outputFilename;
+int main(int argc, char* argv[]) {
+    if (argc != 6) {
+        cerr << "Usage: " << argv[0] << " input_file favorite_r favorite_g favorite_b output_file" << endl;
+        return 1;
+    }
+
+    string inputFilename = argv[1];
+    int favR = atoi(argv[2]);
+    int favG = atoi(argv[3]);
+    int favB = atoi(argv[4]);
+    string outputFilename = argv[5];
     
     ImageProcessor processor;
     processor.setFavoriteColor(favR, favG, favB);

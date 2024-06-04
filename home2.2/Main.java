@@ -1,134 +1,190 @@
 import java.io.*;
-import java.util.*;
 
 class Pixel {
     int r, g, b;
-
     Pixel(int r, int g, int b) {
         this.r = r;
         this.g = g;
         this.b = b;
     }
-
-    boolean equals(Pixel other) {
-        return this.r == other.r && this.g == other.g && this.b == other.b;
-    }
 }
 
 class ImageProcessor {
-    private List<List<Pixel>> image;
+    private Pixel[][] image;
     private Pixel favorite;
-    private Pixel unfavorite;
+    private Pixel unfavorite; // New unfavorite color
     private int rows;
     private int cols;
 
-    ImageProcessor(int rows, int cols) {
+    public ImageProcessor(int rows, int cols) {
         this.rows = rows;
         this.cols = cols;
-        image = new ArrayList<>(rows);
-        for (int i = 0; i < rows; i++) {
-            List<Pixel> row = new ArrayList<>(cols);
-            for (int j = 0; j < cols; j++) {
-                row.add(new Pixel(0, 0, 0));
-            }
-            image.add(row);
+        image = new Pixel[rows][cols];
+    }
+
+    public void setFavoriteColor(int r, int g, int b) {
+        if (isValidColor(r, g, b)) {
+            favorite = new Pixel(r, g, b);
+        } else {
+            System.err.println("Invalid favorite color");
+            System.exit(1);
         }
     }
 
-    void setFavoriteColor(int r, int g, int b) {
-        favorite = new Pixel(r, g, b);
+    public void setUnfavoriteColor(int r, int g, int b) {
+        if (isValidColor(r, g, b)) {
+            unfavorite = new Pixel(r, g, b);
+        } else {
+            System.err.println("Invalid unfavorite color");
+            System.exit(1);
+        }
     }
 
-    void setUnfavoriteColor(int r, int g, int b) {
-        unfavorite = new Pixel(r, g, b);
+    private boolean isValidColor(int r, int g, int b) {
+        return (r >= 0 && r <= 255) && (g >= 0 && g <= 255) && (b >= 0 && b <= 255);
     }
 
-    void readImage(String filename) {
+    private void processImage() {
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                if (unfavorite != null && image[i][j].r == unfavorite.r && image[i][j].g == unfavorite.g && image[i][j].b == unfavorite.b) {
+                    image[i][j] = favorite;
+                } else if (image[i][j].r == favorite.r && image[i][j].g == favorite.g && image[i][j].b == favorite.b) {
+                    if (j > 0) {
+                        image[i][j - 1] = favorite;  // Left neighbor
+                    }
+                    if (i > 0) {
+                        image[i - 1][j] = favorite;  // Top neighbor
+                    }
+                }
+            }
+        }
+    }
+
+    public void readImage(String filename) {
         try {
             BufferedReader reader = new BufferedReader(new FileReader(filename));
             String line;
-            int i = 0;
-            while ((line = reader.readLine()) != null && i < rows) {
-                String[] pixels = line.split(" ");
-                int j = 0;
-                for (String pixel : pixels) {
-                    String[] rgb = pixel.split(",");
+            int row = 0;
+            while ((line = reader.readLine()) != null && row < rows) {
+                String[] values = line.split(" ");
+                if (values.length != cols) {
+                    System.err.println("Invalid number of pixels in row " + (row + 1));
+                    System.exit(1);
+                }
+                for (int col = 0; col < cols; col++) {
+                    String[] rgb = values[col].split(",");
+                    if (rgb.length != 3) {
+                        System.err.println("Invalid pixel format in row " + (row + 1) + ", column " + (col + 1));
+                        System.exit(1);
+                    }
                     int r = Integer.parseInt(rgb[0]);
                     int g = Integer.parseInt(rgb[1]);
                     int b = Integer.parseInt(rgb[2]);
-                    image.get(i).set(j, new Pixel(r, g, b));
-                    j++;
+                    if (!isValidColor(r, g, b)) {
+                        System.err.println("Pixel color out of range in row " + (row + 1) + ", column " + (col + 1));
+                        System.exit(1);
+                    }
+                    image[row][col] = new Pixel(r, g, b);
                 }
-                i++;
+                row++;
+            }
+            if (row < rows) {
+                System.err.println("Not enough rows in the input image");
+                System.exit(1);
             }
             reader.close();
         } catch (IOException e) {
-            System.err.println("Error reading file: " + filename);
             e.printStackTrace();
             System.exit(1);
         }
     }
 
-    void processImage() {
-        for (int i = 0; i < rows; i++) {
-            for (int j = 0; j < cols; j++) {
-                Pixel current = image.get(i).get(j);
-                if (current.equals(unfavorite)) {
-                    image.get(i).set(j, favorite);
-                }
-            }
-        }
-    }
-
-    void writeImage(String filename) {
+    public void writeImage(String filename) {
         try {
             BufferedWriter writer = new BufferedWriter(new FileWriter(filename));
-            for (List<Pixel> row : image) {
-                for (Pixel pixel : row) {
-                    writer.write(pixel.r + "," + pixel.g + "," + pixel.b + " ");
+            for (int i = 0; i < rows; i++) {
+                for (int j = 0; j < cols; j++) {
+                    writer.write(image[i][j].r + "," + image[i][j].g + "," + image[i][j].b + " ");
                 }
                 writer.newLine();
             }
             writer.close();
         } catch (IOException e) {
-            System.err.println("Error writing to file: " + filename);
             e.printStackTrace();
             System.exit(1);
         }
     }
 
-    void processAndSave(String outputFilename) {
+    public void processAndSave(String outputFilename) {
+        if (favorite == null) {
+            System.err.println("Favorite color not set");
+            System.exit(1);
+        }
+        // Check if unfavorite color is provided and if it is present in the image
+        if (unfavorite != null) {
+            boolean unfavColorFound = false;
+            for (Pixel[] row : image) {
+                for (Pixel pixel : row) {
+                    if (pixel != null && pixel.r == unfavorite.r && pixel.g == unfavorite.g && pixel.b == unfavorite.b) {
+                        unfavColorFound = true;
+                        break;
+                    }
+                }
+                if (unfavColorFound) {
+                    break;
+                }
+            }
+            if (!unfavColorFound) {
+                System.err.println("Unfavorite color not found in the image");
+                System.exit(1);
+            }
+        }
+        // Processing the image
         processImage();
+        // Saving the processed image
         writeImage(outputFilename);
     }
+    
 }
 
 public class Main {
     public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
+        if (args.length != 5 && args.length != 8) {
+            System.err.println("Usage: java Main input_file favorite_r favorite_g favorite_b output_file [unfavorite_r unfavorite_g unfavorite_b]");
+            System.exit(1);
+        }
 
-        System.out.print("Enter input file name: ");
-        String inputFilename = scanner.nextLine();
-        System.out.print("Enter favorite color (R G B): ");
-        int favR = scanner.nextInt();
-        int favG = scanner.nextInt();
-        int favB = scanner.nextInt();
-        System.out.print("Enter unfavorite color (R G B) (Optional, enter -1 -1 -1 if not needed): ");
-        int unfavR = scanner.nextInt();
-        int unfavG = scanner.nextInt();
-        int unfavB = scanner.nextInt();
-        scanner.nextLine(); // Consume newline
-        System.out.print("Enter output file name: ");
-        String outputFilename = scanner.nextLine();
+        String inputFilename = args[0];
+        int favR = Integer.parseInt(args[1]);
+        int favG = Integer.parseInt(args[2]);
+        int favB = Integer.parseInt(args[3]);
+        String outputFilename = args[4];
 
         ImageProcessor processor = new ImageProcessor(16, 16);
         processor.setFavoriteColor(favR, favG, favB);
-        if (unfavR != -1 && unfavG != -1 && unfavB != -1) {
-            processor.setUnfavoriteColor(unfavR, unfavG, unfavB);
+        
+        File inputFile = new File(inputFilename);
+        if (!inputFile.exists()) {
+            System.err.println("Input file does not exist");
+            System.exit(1);
         }
+        
         processor.readImage(inputFilename);
-        processor.processAndSave(outputFilename);
 
-        scanner.close();
+        if (args.length == 8) { // If unfavorite color provided
+            int unfavR = Integer.parseInt(args[5]);
+            int unfavG = Integer.parseInt(args[6]);
+            int unfavB = Integer.parseInt(args[7]);
+            processor.setUnfavoriteColor(unfavR, unfavG, unfavB);
+            
+            // Check if the unfavorite color matches the favorite color
+            if (favR == unfavR && favG == unfavG && favB == unfavB) {
+                System.err.println("Unfavorite color is the same as the favorite color");
+                System.exit(1);
+            }
+        }
+
+        processor.processAndSave(outputFilename);
     }
 }
