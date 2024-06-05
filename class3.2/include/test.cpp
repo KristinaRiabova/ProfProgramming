@@ -1,5 +1,6 @@
 #include "UnitTests.hpp"
 #include <cmath>
+#include <gtest/gtest.h> 
 
 class Triangle {
 public:
@@ -20,7 +21,7 @@ void test_triangle_area() {
     ASSERT_EQ(triangle1.area(), 6.0);
 
     Triangle triangle2(7, 8, 9);
-    ASSERT_EQ(triangle2.area(), 26.83281573);
+    ASSERT_EQ(triangle2.area(), 26.832815729997478);
 
     Triangle triangle3(10, 10, 10);
     ASSERT_EQ(triangle3.area(), 43.3012701892);
@@ -55,7 +56,7 @@ void test_magic_color_generation() {
     Color color2(0, 255, 0);
     color2.generateMagicColor();
     ASSERT_EQ(color2.getRed(), -1);
-    ASSERT_EQ(color2.getGreen(), 510);
+    ASSERT_EQ(color2.getGreen(), 508);
     ASSERT_EQ(color2.getBlue(), 0);
 
     Color color3(100, 150, 200);

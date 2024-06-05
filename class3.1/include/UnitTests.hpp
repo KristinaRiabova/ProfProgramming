@@ -1,11 +1,12 @@
 #pragma once
-
+//я виправила код бо в мене показувало помилки , підскажіть як можна виправити 
 #include <vector>
 #include <functional>
 #include <string>
-#include <print>
+#include <iostream>
 #include <cassert>
 #include <source_location>
+#include <cstddef> 
 
 #define ASSERT_EQ(leftValue, rightValue) \
     if ( leftValue != rightValue ) { \
@@ -16,10 +17,10 @@
 
 #define ASSERT_NEQ(leftValue, rightValue) \
     if ( leftValue == rightValue ) { \
-        auto location = std::source_location::current(); \
-        std::println("Assert failed: {} is equal to {} at {}:{}", #leftValue, #rightValue, location.file_name(), location.line()); \
+        std::cerr << "Assert failed: " << #leftValue << " is equal to " << #rightValue << " at " << __FILE__ << ":" << __LINE__ << std::endl; \
         throw std::invalid_argument("Assertion failed"); \
     }
+
 
 class UnitTests {
 public:
@@ -34,23 +35,23 @@ public:
         constexpr auto redColor = "\033[31m";
         constexpr auto endColor = "\033[m";
 
-        size_t totalCount = 0;
-        size_t successCount = 0;
+        std::size_t totalCount = 0; 
+        std::size_t successCount = 0; 
 
         for (auto& [name, testFunc] : tests) {
             if (testFunc) {
-                std::println("Executing test {}...", name);
+                std::cout << "Executing test " << name << "..." << std::endl;
                 totalCount++;
                 try {
                     testFunc();
-                    std::println("{} {}PASSED{}.", name, greenColor, endColor);
+                    std::cout << name << " " << greenColor << "PASSED" << endColor << "." << std::endl;
                     successCount++;
                 } catch (std::exception& e) {
-                    std::println("{} {}FAILED{}.", name, redColor, endColor);
+                    std::cout << name << " " << redColor << "FAILED" << endColor << "." << std::endl;
                 }
             }
         }
-        std::println("{} of {} {} have passed", successCount, totalCount, totalCount == 1 ? "test" : "tests");
+        std::cout << successCount << " of " << totalCount << (totalCount == 1 ? " test" : " tests") << " have passed" << std::endl;
     }
 
 private:
