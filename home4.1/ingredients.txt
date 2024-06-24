@@ -1,0 +1,7 @@
+Pepperoni 2.0
+Stefania 1.0
+BlackPizza 0.5
+Senorita 2.5
+Macaroni 1.0
+Ukrainian 3.0
+Pineapple 1.25
