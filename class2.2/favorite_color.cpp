@@ -2,17 +2,31 @@
 #include <fstream>
 #include <sstream>
 #include <vector>
+#include <string>
 #include <algorithm>
 
 using namespace std;
+
+namespace {
+    constexpr auto IMAGE_WIDTH = 16;
+    constexpr auto IMAGE_HEIGHT = 16;
+}
 
 class Pixel {
 public:
     int r, g, b;
     Pixel(int r = 0, int g = 0, int b = 0) : r(r), g(g), b(b) {}
-    
+
     bool operator==(const Pixel& other) const {
         return r == other.r && g == other.g && b == other.b;
+    }
+
+    bool isValid() const {
+        return r >= 0 && r <= 255 && g >= 0 && g <= 255 && b >= 0 && b <= 255;
+    }
+
+    std::string toString() const {
+        return std::to_string(r) + "," + std::to_string(g) + "," + std::to_string(b);
     }
 };
 
@@ -43,16 +57,14 @@ private:
         for (const auto& row : image) {
             if (row.size() != cols) return false;
             for (const auto& pixel : row) {
-                if (pixel.r < 0 || pixel.r > 255 || pixel.g < 0 || pixel.g > 255 || pixel.b < 0 || pixel.b > 255) {
-                    return false;
-                }
+                if (!pixel.isValid()) return false;
             }
         }
         return true;
     }
 
 public:
-    ImageProcessor(int rows = 16, int cols = 16) : rows(rows), cols(cols) {
+    ImageProcessor(int rows = IMAGE_HEIGHT, int cols = IMAGE_WIDTH) : rows(rows), cols(cols) {
         image.resize(rows, vector<Pixel>(cols));
     }
 
@@ -60,86 +72,88 @@ public:
         favorite = Pixel(r, g, b);
     }
 
-void readImage(const string& filename) {
-    ifstream infile(filename);
-    if (!infile) {
-        cerr << "Error opening file: " << filename << endl;
-        exit(1);
-    }
-    string line;
-    bool isEmpty = true; // Flag to track if the file is empty
-    for (int i = 0; i < rows; ++i) {
-        if (getline(infile, line)) {
-            isEmpty = false;
-            istringstream iss(line);
-            string pixel;
-            for (int j = 0; j < cols; ++j) {
-                if (getline(iss, pixel, ' ')) {
-                    replace(pixel.begin(), pixel.end(), ',', ' ');  
-                    istringstream pixelStream(pixel);
-                    int r, g, b;
-                    if (!(pixelStream >> r >> g >> b)) {
-                        cerr << "Error: Invalid format in line " << i + 1 << " of the input file." << endl;
-                        exit(1);
+    bool readImage(const string& filename) {
+        ifstream infile(filename);
+        if (!infile) {
+            cerr << "Error opening file: " << filename << endl;
+            return false;
+        }
+        string line;
+        for (int i = 0; i < rows; ++i) {
+            if (getline(infile, line)) {
+                istringstream iss(line);
+                string pixel;
+                for (int j = 0; j < cols; ++j) {
+                    if (getline(iss, pixel, ' ')) {
+                        replace(pixel.begin(), pixel.end(), ',', ' ');
+                        istringstream pixelStream(pixel);
+                        int r, g, b;
+                        if (!(pixelStream >> r >> g >> b)) {
+                            cerr << "Error: Invalid format in line " << i + 1 << " of the input file." << endl;
+                            return false;
+                        }
+                        image[i][j] = Pixel(r, g, b);
+                    } else {
+                        cerr << "Error: Unexpected end of file." << endl;
+                        return false;
                     }
-                    image[i][j] = Pixel(r, g, b);
-                } else {
-                    cerr << "Error: Unexpected end of file." << endl;
-                    exit(1);
+                }
+                if (iss >> pixel) {
+                    cerr << "Error: Extra data in line " << i + 1 << " of the input file." << endl;
+                    return false;
                 }
             }
-            if (iss >> pixel) {
-                cerr << "Error: Extra data in line " << i + 1 << " of the input file." << endl;
-                exit(1);
-            }
         }
+        if (getline(infile, line)) {
+            cerr << "Error: Extra lines present in the file." << endl;
+            return false;
+        }
+        return true;
     }
-    if (isEmpty) {
-        cerr << "Error: File is empty." << endl;
-        exit(1);
-    }
-}
 
-
-    void writeImage(const string& filename) const {
+    bool writeImage(const string& filename) const {
         ofstream outfile(filename);
         if (!outfile) {
             cerr << "Error writing to file: " << filename << endl;
-            exit(1);
+            return false;
         }
         for (const auto& row : image) {
-            for (const auto& pixel : row) {
-                outfile << pixel.r << "," << pixel.g << "," << pixel.b << " ";
+            for (size_t j = 0; j < row.size(); ++j) {
+                outfile << row[j].toString();
+                if (j < row.size() - 1) {
+                    outfile << " ";
+                }
             }
             outfile << endl;
         }
+        return true;
     }
 
-   void processAndSave(const string& outputFilename) {
-    bool foundFavoriteColor = false; // Flag to track if favorite color is found in the image
-    for (const auto& row : image) {
-        for (const auto& pixel : row) {
-            if (pixel == favorite) {
-                foundFavoriteColor = true;
-                break;
+    bool processAndSave(const string& outputFilename) {
+        bool foundFavoriteColor = false;
+        for (const auto& row : image) {
+            for (const auto& pixel : row) {
+                if (pixel == favorite) {
+                    foundFavoriteColor = true;
+                    break;
+                }
             }
+            if (foundFavoriteColor) break;
         }
-        if (foundFavoriteColor) break; // If found, no need to continue searching
-    }
 
-    if (!foundFavoriteColor) {
-        cerr << "Favorite color not found in the image." << endl;
-        exit(1);
-    }
+        if (!foundFavoriteColor) {
+            cerr << "Favorite color not found in the image." << endl;
+            return false;
+        }
 
-    if (!validateInput()) {
-        cerr << "Invalid input data format." << endl;
-        exit(1);
-    }
-    processImage();
-    writeImage(outputFilename);
-}
+        if (!validateInput()) {
+            cerr << "Invalid input data format." << endl;
+            return false;
+        }
 
+        processImage();
+        return writeImage(outputFilename);
+    }
 };
 
 int main(int argc, char* argv[]) {
@@ -156,8 +170,14 @@ int main(int argc, char* argv[]) {
     
     ImageProcessor processor;
     processor.setFavoriteColor(favR, favG, favB);
-    processor.readImage(inputFilename);
-    processor.processAndSave(outputFilename);
-    
+
+    if (!processor.readImage(inputFilename)) {
+        return 1;
+    }
+
+    if (!processor.processAndSave(outputFilename)) {
+        return 1;
+    }
+
     return 0;
 }

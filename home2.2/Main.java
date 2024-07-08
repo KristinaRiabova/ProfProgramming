@@ -1,18 +1,32 @@
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 
 class Pixel {
     int r, g, b;
+
     Pixel(int r, int g, int b) {
         this.r = r;
         this.g = g;
         this.b = b;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Pixel pixel = (Pixel) o;
+        return r == pixel.r && g == pixel.g && b == pixel.b;
     }
 }
 
 class ImageProcessor {
     private Pixel[][] image;
     private Pixel favorite;
-    private Pixel unfavorite; // New unfavorite color
+    private Pixel unfavorite;
     private int rows;
     private int cols;
 
@@ -47,9 +61,9 @@ class ImageProcessor {
     private void processImage() {
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < cols; j++) {
-                if (unfavorite != null && image[i][j].r == unfavorite.r && image[i][j].g == unfavorite.g && image[i][j].b == unfavorite.b) {
+                if (unfavorite != null && image[i][j].equals(unfavorite)) {
                     image[i][j] = favorite;
-                } else if (image[i][j].r == favorite.r && image[i][j].g == favorite.g && image[i][j].b == favorite.b) {
+                } else if (image[i][j].equals(favorite)) {
                     if (j > 0) {
                         image[i][j - 1] = favorite;  // Left neighbor
                     }
@@ -126,7 +140,7 @@ class ImageProcessor {
             boolean unfavColorFound = false;
             for (Pixel[] row : image) {
                 for (Pixel pixel : row) {
-                    if (pixel != null && pixel.r == unfavorite.r && pixel.g == unfavorite.g && pixel.b == unfavorite.b) {
+                    if (pixel != null && pixel.equals(unfavorite)) {
                         unfavColorFound = true;
                         break;
                     }
@@ -145,7 +159,6 @@ class ImageProcessor {
         // Saving the processed image
         writeImage(outputFilename);
     }
-    
 }
 
 public class Main {

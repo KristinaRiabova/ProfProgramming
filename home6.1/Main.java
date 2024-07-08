@@ -4,7 +4,6 @@ public class Main {
     public static void main(String[] args) {
         MessageDispatcher dispatcher = new MessageDispatcher();
 
-
         MessageSubscriber subscriber = new MessageSubscriber() {
             @Override
             public void handleMessage(GreenMessage msg) {
@@ -23,17 +22,17 @@ public class Main {
             }
         };
 
-        
         UUID subscriptionId = dispatcher.subscribe(subscriber);
         System.out.println("Subscriber subscribed with ID: " + subscriptionId);
 
- 
         dispatcher.publish(new GreenMessage("Hello Green", 36));
         dispatcher.publish(new BlueMessage(1.5, 3.7));
         dispatcher.publish(new OrangeMessage("Orange", "Message", 127, 3.16));
 
-        
         dispatcher.unsubscribe(subscriptionId);
         System.out.println("Subscriber unsubscribed");
+
+        // Stop the dispatcher gracefully
+        dispatcher.stopDispatcher();
     }
 }
